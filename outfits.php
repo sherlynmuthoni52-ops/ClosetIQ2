@@ -110,7 +110,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['generate_outfit'])) {
  */
 function fetchWeather($city) {
     // Configuration - replace with your actual OpenWeatherMap API key
-    $apiKey = 'YOUR_OPENWEATHERMAP_API_KEY_HERE';
+    $apiKey = '57afe33e7588afac53705e3caf3750a4 ';
     $baseUrl = 'https://api.openweathermap.org/data/2.5/weather';
     
     // Validate city name

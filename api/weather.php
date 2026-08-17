@@ -19,7 +19,7 @@ require_login();
 header('Content-Type: application/json');
 
 // Configuration - replace with your actual OpenWeatherMap API key
-define('OWM_API_KEY', 'YOUR_OPENWEATHERMAP_API_KEY_HERE');
+define('OWM_API_KEY', '57afe33e7588afac53705e3caf3750a4 ');
 define('OWM_BASE_URL', 'https://api.openweathermap.org/data/2.5/weather');
 
 $city = isset($_GET['city']) ? trim($_GET['city']) : '';
