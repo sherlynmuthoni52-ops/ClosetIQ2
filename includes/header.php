@@ -30,6 +30,7 @@ $user = get_logged_in_user();
                     <li><a href="wardrobe.php" class="<?php echo $currentPage === 'wardrobe.php' ? 'active' : ''; ?>">Wardrobe</a></li>
                     <li><a href="outfits.php" class="<?php echo $currentPage === 'outfits.php' ? 'active' : ''; ?>">Outfits</a></li>
                     <li><a href="history.php" class="<?php echo $currentPage === 'history.php' ? 'active' : ''; ?>">History</a></li>
+                    <li><a href="calendar.php" class="<?php echo $currentPage === 'calendar.php' ? 'active' : ''; ?>">Calendar</a></li>
                 </ul>
             </nav>
             <div class="user-menu">
