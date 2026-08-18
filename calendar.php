@@ -12,6 +12,7 @@ require_once 'includes/header.php';
 
 $user = get_logged_in_user();
 $userId = $user['id'];
+$pageTitle = 'Calendar';
 
 // Get user's outfit history for the assignment modal
 $stmt = $pdo->prepare('SELECT * FROM outfit_history WHERE user_id = :user_id ORDER BY created_at DESC LIMIT 50');
@@ -47,6 +48,21 @@ $outfitHistory = $stmt->fetchAll();
             </div>
             <div class="calendar-grid" id="calendar-grid">
                 <!-- Calendar days will be rendered here by JavaScript -->
+            </div>
+        </div>
+
+        <!-- Calendar Legend -->
+        <div class="calendar-legend">
+            <div class="legend-item">
+                <div class="legend-dot today-dot"></div>
+                <span>Today</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-dot outfit-dot"></div>
+                <span>Has Outfit</span>
+            </div>
+            <div class="legend-item" style="color: var(--text-light);">
+                <span>Click any day to assign an outfit</span>
             </div>
         </div>
     </div>

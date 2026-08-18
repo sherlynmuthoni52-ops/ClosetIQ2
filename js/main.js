@@ -216,11 +216,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 const desc = entry.outfit_details.description || 'Assigned outfit';
                 const itemNames = items.map(function(item) { return item.name; }).join(', ');
                 tooltipContent.innerHTML = '<h4>Outfit Assigned</h4><p>' + escapeHtml(desc) + '</p><p style="font-size:0.85rem;opacity:0.8">' + escapeHtml(itemNames) + '</p>';
-                showTooltip(e, tooltip);
+                positionTooltip(e, tooltip);
+                tooltip.classList.add('active');
             });
             
             dayEl.addEventListener('mouseleave', function() {
-                hideTooltip(tooltip);
+                tooltip.classList.remove('active');
             });
         }
         
@@ -233,15 +234,24 @@ document.addEventListener('DOMContentLoaded', function() {
         return dayEl;
     }
     
-    function showTooltip(e, tooltipEl) {
+    function positionTooltip(e, tooltipEl) {
         tooltipEl.classList.add('active');
         const rect = e.target.getBoundingClientRect();
-        tooltipEl.style.left = rect.left + 'px';
-        tooltipEl.style.top = (rect.bottom + 5) + 'px';
-    }
-    
-    function hideTooltip(tooltipEl) {
-        tooltipEl.classList.remove('active');
+        const tooltipRect = tooltipEl.getBoundingClientRect();
+        
+        let left = rect.left;
+        let top = rect.bottom + 8;
+        
+        // Keep tooltip within viewport
+        if (left + tooltipRect.width > window.innerWidth) {
+            left = window.innerWidth - tooltipRect.width - 16;
+        }
+        if (top + tooltipRect.height > window.innerHeight) {
+            top = rect.top - tooltipRect.height - 8;
+        }
+        
+        tooltipEl.style.left = left + 'px';
+        tooltipEl.style.top = top + 'px';
     }
     
     function openModal(dateStr, existingEntry) {
@@ -265,6 +275,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         modal.classList.add('active');
+        outfitSelect.focus();
     }
     
     function closeModal() {
@@ -273,8 +284,12 @@ document.addEventListener('DOMContentLoaded', function() {
     
     async function fetchCalendarEntries(year, month) {
         try {
+            calendarGrid.style.opacity = '0.5';
+            
             const response = await fetch('api/calendar.php?action=get_month&year=' + year + '&month=' + month);
             const data = await response.json();
+            
+            calendarGrid.style.opacity = '1';
             
             if (data.success) {
                 calendarEntries = data.entries;
@@ -282,6 +297,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         } catch (err) {
             console.error('Failed to load calendar entries:', err);
+            calendarGrid.style.opacity = '1';
         }
     }
     
@@ -301,7 +317,7 @@ document.addEventListener('DOMContentLoaded', function() {
             
             if (data.success) {
                 if (data.repeat_warning) {
-                    alert('Note: ' + data.repeat_warning);
+                    showMessage(data.repeat_warning, 'warning');
                 }
                 await fetchCalendarEntries(currentYear, currentMonth);
                 closeModal();
@@ -338,6 +354,27 @@ document.addEventListener('DOMContentLoaded', function() {
         } catch (err) {
             alert('Failed to remove outfit. Please try again.');
         }
+    }
+    
+    function showMessage(text, type) {
+        // Simple message display - could be enhanced with a toast notification
+        const messageDiv = document.createElement('div');
+        messageDiv.style.cssText = 'position:fixed;top:20px;left:50%;transform:translateX(-50%);padding:1rem 2rem;border-radius:8px;color:white;font-weight:500;z-index:5000;box-shadow:0 4px 12px rgba(0,0,0,0.15);animation:slideDown 0.3s ease;';
+        if (type === 'warning') {
+            messageDiv.style.backgroundColor = '#f39c12';
+        } else {
+            messageDiv.style.backgroundColor = '#27ae60';
+        }
+        messageDiv.textContent = text;
+        document.body.appendChild(messageDiv);
+        
+        setTimeout(function() {
+            messageDiv.style.opacity = '0';
+            messageDiv.style.transition = 'opacity 0.3s ease';
+            setTimeout(function() {
+                document.body.removeChild(messageDiv);
+            }, 300);
+        }, 3000);
     }
     
     function escapeHtml(text) {
@@ -392,6 +429,13 @@ document.addEventListener('DOMContentLoaded', function() {
         removeBtn.addEventListener('click', function() {
             const date = modalDateInput.value;
             removeOutfit(date);
+        });
+        
+        // Close modal with Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && modal.classList.contains('active')) {
+                closeModal();
+            }
         });
     }
     
