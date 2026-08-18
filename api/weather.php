@@ -10,8 +10,8 @@
  * Returns JSON with temperature, condition, humidity, etc.
  */
 
-require_once '../config/database.php';
-require_once '../includes/auth.php';
+require_once __DIR__ . '/../config/database.php';
+require_once __DIR__ . '/../includes/auth.php';
 
 // Only allow logged-in users to access weather data
 require_login();
