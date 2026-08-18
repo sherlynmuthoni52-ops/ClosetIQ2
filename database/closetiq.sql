@@ -1,41 +1,94 @@
--- ClosetIQ Database Schema
--- Smart Wardrobe Inventory and Outfit Planner
--- MySQL / XAMPP
-
-CREATE DATABASE IF NOT EXISTS closetiq_db;
-USE closetiq_db;
-
--- Users table: stores account information
-CREATE TABLE users (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    username VARCHAR(50) NOT NULL UNIQUE,
-    email VARCHAR(100) NOT NULL UNIQUE,
-    password_hash VARCHAR(255) NOT NULL,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
--- Clothing items table: stores user wardrobe inventory
-CREATE TABLE clothing_items (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    user_id INT NOT NULL,
-    name VARCHAR(100) NOT NULL,
-    category ENUM('tops','bottoms','footwear','accessories') NOT NULL,
-    color VARCHAR(50) NOT NULL,
-    size VARCHAR(20),
-    season ENUM('spring','summer','autumn','winter','all') DEFAULT 'all',
-    image_path VARCHAR(255),
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
--- Outfit history table: stores previously generated outfits
-CREATE TABLE outfit_history (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    user_id INT NOT NULL,
-    outfit_details JSON NOT NULL,
-    weather_data JSON,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+BEGIN TRANSACTION;
+INSERT INTO "clothing_items" ("id","user_id","name","category","color","size","season","image_path","date_added") VALUES (1,1,'blue long sleaved','Tops','blue','s','Winter','e6a950c1-8757-4b71-a436-4ad630a9e054.jpg','2026-05-29 20:28:06');
+INSERT INTO "clothing_items" ("id","user_id","name","category","color","size","season","image_path","date_added") VALUES (2,1,'black shirt','Tops','black','6','All','954be223-cb04-46df-9d1d-1b656769fa38.jpg','2026-05-29 20:32:42');
+INSERT INTO "clothing_items" ("id","user_id","name","category","color","size","season","image_path","date_added") VALUES (3,1,'blue jump suit','Tops','blue','s','Summer','6343ba3d-dadf-4cc9-8c60-a56c2478ba6f.jpg','2026-05-29 20:33:55');
+INSERT INTO "clothing_items" ("id","user_id","name","category","color","size","season","image_path","date_added") VALUES (4,1,'jeanswideleg','Bottoms','blue','6','Spring','059a67a0-d275-4446-b979-44348f882e4d.jpg','2026-05-29 20:35:48');
+INSERT INTO "clothing_items" ("id","user_id","name","category","color","size","season","image_path","date_added") VALUES (6,1,'brownjumpsuit','Bottoms','brown','6','Summer','52a681b8-9cf2-4bb9-b5e5-0ed603ecf06c.jpg','2026-05-29 20:37:53');
+INSERT INTO "clothing_items" ("id","user_id","name","category","color","size","season","image_path","date_added") VALUES (7,1,'officialtrouser','Bottoms','lightbrown','s','All','23e60089-300b-42af-9551-066f95be9038.jpg','2026-05-29 20:38:55');
+INSERT INTO "clothing_items" ("id","user_id","name","category","color","size","season","image_path","date_added") VALUES (8,1,'whiteoffshoulder','Tops','white','s','Summer','88371dfe-43da-4a72-a904-0033758cc31b.jpg','2026-05-29 20:40:13');
+INSERT INTO "clothing_items" ("id","user_id","name","category","color","size","season","image_path","date_added") VALUES (9,1,'brown sandals','Footwear','brown and white','38','Summer','799ca738-6b58-4954-aa3a-aa6ad075b402.jpg','2026-06-15 12:41:23');
+INSERT INTO "clothing_items" ("id","user_id","name","category","color","size","season","image_path","date_added") VALUES (10,1,'Adiddas sambas','Footwear','white','38','All','9ea7a24f-52aa-4f94-83f5-5ee59bebe9d3.jpg','2026-06-15 12:43:47');
+INSERT INTO "clothing_items" ("id","user_id","name","category","color","size","season","image_path","date_added") VALUES (11,1,'dollshoes','Footwear','maroon','38','Summer','1c2ab0d0-cc23-46f4-80cf-0e548ad0d447.jpg','2026-06-15 12:44:35');
+INSERT INTO "clothing_items" ("id","user_id","name","category","color","size","season","image_path","date_added") VALUES (12,1,'heels','Footwear','black','38','All','d6658b72-d50d-4b82-b727-75741154373f.jpg','2026-06-15 12:46:13');
+INSERT INTO "clothing_items" ("id","user_id","name","category","color","size","season","image_path","date_added") VALUES (13,1,'white buttoned','Tops','white','s','All','d846866e-25b4-4b91-9ed4-624bbdbdb9b6.jpg','2026-06-15 12:46:56');
+INSERT INTO "clothing_items" ("id","user_id","name","category","color","size","season","image_path","date_added") VALUES (14,1,'dennim skirt','Bottoms','blue','s','All','64d541c2-b88f-4ca2-a40c-98952ece98a9.jpg','2026-06-15 12:48:20');
+INSERT INTO "clothing_items" ("id","user_id","name","category","color","size","season","image_path","date_added") VALUES (16,1,'striped croped','Tops','black and white','s','All','55b07672-48c5-4d00-ae9a-a5232a9370f7.jpg','2026-06-15 12:51:01');
+INSERT INTO "clothing_items" ("id","user_id","name","category","color","size","season","image_path","date_added") VALUES (17,1,'quoter zip sweater','Tops','black and white','s','Winter','11753bf7-5c4a-4421-bff2-8b0cb6530578.jpg','2026-06-15 12:52:21');
+INSERT INTO "clothing_items" ("id","user_id","name","category","color","size","season","image_path","date_added") VALUES (18,1,'orange striped shirt','Tops','orange','s','All','9a00f1a2-7cf9-4439-883f-9515f7840ed3.jpg','2026-06-15 12:53:59');
+INSERT INTO "clothing_items" ("id","user_id","name","category","color","size","season","image_path","date_added") VALUES (19,1,'trouser','Bottoms','black','s','All','7d19cf11-6a82-48d8-b50c-86cb6aabba88.jpg','2026-06-15 12:55:35');
+INSERT INTO "clothing_items" ("id","user_id","name","category","color","size","season","image_path","date_added") VALUES (21,1,'nike','Footwear','grey','38','All','6d196f9e-0ada-4168-a6b9-e8a98b4b4b99.jpg','2026-06-15 12:59:16');
+INSERT INTO "clothing_items" ("id","user_id","name","category","color","size","season","image_path","date_added") VALUES (22,1,'sport shoes','Footwear','pink and grey','38','Winter','9a99be15-876b-42b0-b077-b9a3b04f7c19.jpg','2026-06-15 13:00:12');
+INSERT INTO "clothing_items" ("id","user_id","name","category","color","size","season","image_path","date_added") VALUES (23,1,'low waist flared jeans','Bottoms','navy blue','s','All','181f7404-5318-4fbe-9f93-e2b745cf8370.jpg','2026-06-15 13:03:06');
+INSERT INTO "clothing_items" ("id","user_id","name","category","color","size","season","image_path","date_added") VALUES (24,1,'grey wide leg sweatpant','Bottoms','grey','s','Summer','7f72213f-f19c-4654-81cb-ff80828b6a07.jpg','2026-06-15 13:04:46');
+INSERT INTO "clothing_items" ("id","user_id","name","category","color","size","season","image_path","date_added") VALUES (25,1,'officialtrouser','Bottoms','dark grey','s','All','38238902-c69a-49b8-8884-c03070d851c9.jpg','2026-06-15 13:08:33');
+INSERT INTO "clothing_items" ("id","user_id","name","category","color","size","season","image_path","date_added") VALUES (26,1,'gold waist chain','Accessories','gold','6','Summer','9c3c225d-6975-4740-8c2a-9500faefeb64.jpg','2026-06-15 13:11:34');
+INSERT INTO "clothing_items" ("id","user_id","name","category","color","size","season","image_path","date_added") VALUES (27,1,'brown belt','Accessories','brown','6','All','7a4c829d-040d-4708-afac-2adcf47e5fe2.jpg','2026-06-15 13:13:02');
+INSERT INTO "clothing_items" ("id","user_id","name","category","color","size","season","image_path","date_added") VALUES (28,1,'summer strapless top','Tops','orange and yellow','6','Summer','94f774fb-e73a-452f-bfe6-b5d7fb07d130.jpg','2026-06-15 13:18:22');
+INSERT INTO "clothing_items" ("id","user_id","name","category","color","size","season","image_path","date_added") VALUES (29,1,'summer skirt','Bottoms','orange and yellow','6','Summer','0213ac88-6824-4d5c-ab80-22421e07ae31.jpg','2026-06-15 13:19:20');
+INSERT INTO "clothing_items" ("id","user_id","name","category","color","size","season","image_path","date_added") VALUES (30,1,'silver hoops','Accessories','silver','6','Spring','bc30998e-e33e-44ea-bc0d-6c42fee09bab.jpg','2026-06-15 13:23:41');
+INSERT INTO "clothing_items" ("id","user_id","name","category","color","size","season","image_path","date_added") VALUES (31,1,'silver bow chain','Accessories','silver','6','All','9ac8cc2f-6d1e-455a-a776-c59c32e8ed83.jpg','2026-06-15 13:25:48');
+INSERT INTO "clothing_items" ("id","user_id","name","category","color","size","season","image_path","date_added") VALUES (32,1,'vans shoes','Footwear','black and white','38','Autumn','8d461708-e462-4d06-b011-979953392ebf.jpg','2026-06-15 14:08:06');
+INSERT INTO "clothing_items" ("id","user_id","name","category","color","size","season","image_path","date_added") VALUES (33,1,'longsleaved brown','Tops','brown','6','Autumn','ea87abfc-633d-49e6-ac67-c4e6ee87a1b5.jpg','2026-06-17 11:31:21');
+INSERT INTO "clothing_items" ("id","user_id","name","category","color","size","season","image_path","date_added") VALUES (34,1,'pink long sleaved','Tops','pink','6','Autumn','2ffddcd8-df21-4ff6-ab53-93719d38bee9.jpg','2026-06-17 11:31:58');
+INSERT INTO "clothing_items" ("id","user_id","name","category","color","size","season","image_path","date_added") VALUES (35,1,'earrings','Accessories','gold','all','Spring','16a372d8-5c07-4667-971c-9313f34de409.jpg','2026-06-17 11:35:42');
+INSERT INTO "clothing_items" ("id","user_id","name","category","color","size","season","image_path","date_added") VALUES (36,1,'pink flower pendant necklace','Accessories','silver','all','Autumn','4a876621-fac0-424d-9570-90e0b2aae60f.jpg','2026-06-17 11:37:16');
+INSERT INTO "clothing_items" ("id","user_id","name","category","color","size","season","image_path","date_added") VALUES (37,1,'black cap','Accessories','black','6','All','aa13b6b5-819c-43a2-9420-637108625694.jpg','2026-06-17 11:38:11');
+INSERT INTO "clothing_items" ("id","user_id","name","category","color","size","season","image_path","date_added") VALUES (38,1,'black long sleaved','Tops','black','6','Winter','6c2e4830-0ca0-4a39-a613-8132fb1510d6.jpg','2026-06-17 11:40:23');
+INSERT INTO "clothing_items" ("id","user_id","name","category","color","size","season","image_path","date_added") VALUES (39,1,'christian tshirt','Tops','cream','6','Spring','b2d88d47-57d8-4619-90a1-ef4ec5e70312.jpg','2026-06-17 11:42:58');
+INSERT INTO "clothing_items" ("id","user_id","name","category","color","size","season","image_path","date_added") VALUES (40,1,'maroon trouser','Bottoms','maroon','s','All','0483c83a-b546-4429-910e-b47805f25505.jpg','2026-06-17 11:45:14');
+INSERT INTO "clothing_items" ("id","user_id","name","category","color","size","season","image_path","date_added") VALUES (41,1,'white trouser','Bottoms','white','6','All','a772de49-b2d6-43fb-ae06-0ff97ac376d5.jpg','2026-06-17 11:48:22');
+INSERT INTO "outfit_history" ("id","user_id","outfit_description","weather_condition","date_generated") VALUES (1,1,'Top: blue long sleaved | Bottom: blue jump suit','Mild - 22.4°C in Nairobi','2026-06-15 12:38:38');
+INSERT INTO "outfit_history" ("id","user_id","outfit_description","weather_condition","date_generated") VALUES (2,1,'Top: blue long sleaved | Bottom: blue jump suit | Footwear: dollshoes','Mild - 22.4°C in Nairobi','2026-06-15 12:45:16');
+INSERT INTO "outfit_history" ("id","user_id","outfit_description","weather_condition","date_generated") VALUES (3,1,'Top: blue long sleaved | Bottom: blue jump suit | Footwear: Adiddas sambas','Mild - 22.4°C in Nairobi','2026-06-15 12:49:13');
+INSERT INTO "outfit_history" ("id","user_id","outfit_description","weather_condition","date_generated") VALUES (4,1,'Top: blue long sleaved | Bottom: jeanswideleg | Footwear: brown sandals','Mild - 22.4°C in Nairobi','2026-06-15 12:49:49');
+INSERT INTO "outfit_history" ("id","user_id","outfit_description","weather_condition","date_generated") VALUES (5,1,'Top: blue long sleaved | Bottom: jeanswideleg | Footwear: Adiddas sambas','Mild - 22.4°C in Nairobi','2026-06-15 12:54:46');
+INSERT INTO "outfit_history" ("id","user_id","outfit_description","weather_condition","date_generated") VALUES (6,1,'Top: blue long sleaved | Bottom: jeanswideleg | Footwear: Adiddas sambas','Mild - 22.4°C in Nairobi','2026-06-15 13:00:30');
+INSERT INTO "outfit_history" ("id","user_id","outfit_description","weather_condition","date_generated") VALUES (7,1,'Top: blue long sleaved | Bottom: jeanswideleg | Footwear: sport shoes','Warm - 27.6°C in Mombasa','2026-06-15 13:05:05');
+INSERT INTO "outfit_history" ("id","user_id","outfit_description","weather_condition","date_generated") VALUES (8,1,'Top: blue long sleaved | Bottom: jeanswideleg | Footwear: dollshoes | Accessory: gold waist chain','Warm - 27.6°C in Mombasa','2026-06-15 13:11:44');
+INSERT INTO "outfit_history" ("id","user_id","outfit_description","weather_condition","date_generated") VALUES (9,1,'Top: blue long sleaved | Bottom: jeanswideleg | Footwear: nike | Accessory: gold waist chain','Warm - 27.6°C in Mombasa','2026-06-15 13:11:47');
+INSERT INTO "outfit_history" ("id","user_id","outfit_description","weather_condition","date_generated") VALUES (10,1,'Top: blue long sleaved | Bottom: jeanswideleg | Footwear: Adiddas sambas | Accessory: brown belt','Warm - 27.6°C in Mombasa','2026-06-15 13:19:30');
+INSERT INTO "outfit_history" ("id","user_id","outfit_description","weather_condition","date_generated") VALUES (11,1,'Top: blue long sleaved | Bottom: jeanswideleg | Footwear: Adiddas sambas | Accessory: gold waist chain','Warm - 27.6°C in Mombasa','2026-06-15 13:19:41');
+INSERT INTO "outfit_history" ("id","user_id","outfit_description","weather_condition","date_generated") VALUES (12,1,'Top: blue long sleaved | Bottom: jeanswideleg | Footwear: brown sandals | Accessory: brown belt','Warm - 27.6°C in Mombasa','2026-06-15 13:19:44');
+INSERT INTO "outfit_history" ("id","user_id","outfit_description","weather_condition","date_generated") VALUES (13,1,'Top: black shirt | Bottom: jeanswideleg | Footwear: nike | Accessory: brown belt','Warm - 27.6°C in Mombasa','2026-06-15 13:20:35');
+INSERT INTO "outfit_history" ("id","user_id","outfit_description","weather_condition","date_generated") VALUES (14,1,'Top: blue long sleaved | Bottom: jeanswideleg | Footwear: Adiddas sambas | Accessory: silver hoops','Mild - 22.4°C in Nairobi','2026-06-15 13:27:36');
+INSERT INTO "outfit_history" ("id","user_id","outfit_description","weather_condition","date_generated") VALUES (15,1,'Top: blue long sleaved | Bottom: jeanswideleg | Footwear: brown sandals | Accessory: silver hoops','Mild - 22.4°C in Nairobi','2026-06-15 13:27:40');
+INSERT INTO "outfit_history" ("id","user_id","outfit_description","weather_condition","date_generated") VALUES (16,1,'Top: blue long sleaved | Bottom: jeanswideleg | Footwear: Adiddas sambas | Accessory: silver hoops','Mild - 22.4°C in Nairobi','2026-06-15 13:27:44');
+INSERT INTO "outfit_history" ("id","user_id","outfit_description","weather_condition","date_generated") VALUES (17,1,'Top: blue long sleaved | Bottom: jeanswideleg | Footwear: brown sandals | Accessory: brown belt','Mild - 18.1°C in Gikambura','2026-06-17 11:25:33');
+INSERT INTO "outfit_history" ("id","user_id","outfit_description","weather_condition","date_generated") VALUES (18,1,'Top: blue long sleaved | Bottom: jeanswideleg | Footwear: dollshoes | Accessory: brown belt','Mild - 18.1°C in Gikambura','2026-06-17 11:26:09');
+INSERT INTO "outfit_history" ("id","user_id","outfit_description","weather_condition","date_generated") VALUES (19,1,'Top: blue long sleaved | Bottom: jeanswideleg | Footwear: nike | Accessory: silver hoops','Mild - 18.1°C in Gikambura','2026-06-17 11:26:12');
+INSERT INTO "outfit_history" ("id","user_id","outfit_description","weather_condition","date_generated") VALUES (20,1,'Top: blue long sleaved | Bottom: jeanswideleg | Footwear: dollshoes | Accessory: silver bow chain','Mild - 18.1°C in Gikambura','2026-06-17 11:33:15');
+INSERT INTO "outfit_history" ("id","user_id","outfit_description","weather_condition","date_generated") VALUES (21,1,'Top: blue long sleaved | Bottom: jeanswideleg | Footwear: nike | Accessory: silver bow chain','Mild - 18.1°C in Gikambura','2026-06-17 11:33:20');
+INSERT INTO "outfit_history" ("id","user_id","outfit_description","weather_condition","date_generated") VALUES (22,1,'Top: blue long sleaved | Bottom: jeanswideleg | Footwear: nike | Accessory: silver bow chain','Mild - 18.2°C in Kikuyu','2026-06-17 11:45:30');
+INSERT INTO "outfit_history" ("id","user_id","outfit_description","weather_condition","date_generated") VALUES (23,1,'Top: blue long sleaved | Bottom: jeanswideleg | Footwear: dollshoes | Accessory: silver bow chain','Mild - 18.2°C in Kikuyu','2026-06-17 11:45:35');
+INSERT INTO "outfit_history" ("id","user_id","outfit_description","weather_condition","date_generated") VALUES (24,1,'Top: blue long sleaved | Bottom: jeanswideleg | Footwear: sport shoes | Accessory: brown belt','Mild - 18.2°C in Kikuyu','2026-06-17 11:45:39');
+INSERT INTO "outfit_history" ("id","user_id","outfit_description","weather_condition","date_generated") VALUES (25,1,'Top: blue long sleaved | Bottom: jeanswideleg | Footwear: dollshoes | Accessory: silver hoops','Mild - 18.2°C in Kikuyu','2026-06-17 11:45:43');
+INSERT INTO "outfit_history" ("id","user_id","outfit_description","weather_condition","date_generated") VALUES (26,1,'Top: blue long sleaved | Bottom: jeanswideleg | Footwear: vans shoes | Accessory: brown belt','Mild - 18.2°C in Kikuyu','2026-06-17 11:45:46');
+INSERT INTO "outfit_history" ("id","user_id","outfit_description","weather_condition","date_generated") VALUES (27,1,'Top: blue long sleaved | Bottom: jeanswideleg | Footwear: Adiddas sambas | Accessory: silver bow chain','Mild - 18.2°C in Kikuyu','2026-06-17 11:45:50');
+INSERT INTO "outfit_history" ("id","user_id","outfit_description","weather_condition","date_generated") VALUES (28,1,'Top: blue long sleaved | Bottom: jeanswideleg | Footwear: dollshoes | Accessory: earrings','Mild - 18.2°C in Kikuyu','2026-06-17 11:45:54');
+INSERT INTO "outfit_history" ("id","user_id","outfit_description","weather_condition","date_generated") VALUES (29,1,'Top: blue long sleaved | Bottom: jeanswideleg | Footwear: dollshoes | Accessory: gold waist chain','Mild - 19.1°C in Karen','2026-06-17 11:48:36');
+INSERT INTO "outfit_history" ("id","user_id","outfit_description","weather_condition","date_generated") VALUES (30,1,'Top: blue long sleaved | Bottom: jeanswideleg | Footwear: nike | Accessory: silver hoops','Mild - 19.1°C in Karen','2026-06-17 11:48:40');
+INSERT INTO "outfit_history" ("id","user_id","outfit_description","weather_condition","date_generated") VALUES (31,1,'Top: blue long sleaved | Bottom: jeanswideleg | Footwear: vans shoes | Accessory: black cap','Mild - 19.1°C in Karen','2026-06-17 11:48:43');
+INSERT INTO "outfit_history" ("id","user_id","outfit_description","weather_condition","date_generated") VALUES (32,1,'Top: blue long sleaved | Bottom: jeanswideleg | Footwear: sport shoes | Accessory: pink flower pendant necklace','Mild - 19.1°C in Karen','2026-06-17 11:48:45');
+INSERT INTO "outfit_history" ("id","user_id","outfit_description","weather_condition","date_generated") VALUES (33,1,'Top: blue long sleaved | Bottom: jeanswideleg | Footwear: nike | Accessory: brown belt','Mild - 19.1°C in Karen','2026-06-17 11:48:48');
+INSERT INTO "outfit_history" ("id","user_id","outfit_description","weather_condition","date_generated") VALUES (34,1,'Top: blue long sleaved | Bottom: jeanswideleg | Footwear: sport shoes | Accessory: black cap','Mild - 19.1°C in Karen','2026-06-17 11:48:52');
+INSERT INTO "outfit_history" ("id","user_id","outfit_description","weather_condition","date_generated") VALUES (35,1,'Top: blue long sleaved | Bottom: jeanswideleg | Footwear: brown sandals | Accessory: silver bow chain','Mild - 19.1°C in Karen','2026-06-17 11:48:55');
+INSERT INTO "outfit_history" ("id","user_id","outfit_description","weather_condition","date_generated") VALUES (36,1,'Top: blue long sleaved | Bottom: jeanswideleg | Footwear: sport shoes | Accessory: silver hoops','Mild - 19.1°C in Karen','2026-06-17 11:48:57');
+INSERT INTO "outfit_history" ("id","user_id","outfit_description","weather_condition","date_generated") VALUES (37,1,'Top: blue long sleaved | Bottom: jeanswideleg | Footwear: sport shoes | Accessory: gold waist chain','Mild - 19.1°C in Karen','2026-06-17 11:49:00');
+INSERT INTO "outfit_history" ("id","user_id","outfit_description","weather_condition","date_generated") VALUES (38,1,'Top: blue long sleaved | Bottom: jeanswideleg | Footwear: dollshoes | Accessory: gold waist chain','Mild - 19.1°C in Karen','2026-06-17 11:49:02');
+INSERT INTO "outfit_history" ("id","user_id","outfit_description","weather_condition","date_generated") VALUES (39,1,'Top: blue long sleaved | Bottom: jeanswideleg | Footwear: heels | Accessory: black cap','Warm - 27.9°C in Mombasa','2026-06-17 11:49:40');
+INSERT INTO "outfit_history" ("id","user_id","outfit_description","weather_condition","date_generated") VALUES (40,1,'Top: black shirt | Bottom: jeanswideleg | Footwear: sport shoes | Accessory: silver hoops','Warm - 27.9°C in Mombasa','2026-06-17 11:50:09');
+INSERT INTO "outfit_history" ("id","user_id","outfit_description","weather_condition","date_generated") VALUES (41,1,'Top: black shirt | Bottom: jeanswideleg | Footwear: heels | Accessory: pink flower pendant necklace','Warm - 27.9°C in Mombasa','2026-06-17 11:50:14');
+INSERT INTO "outfit_history" ("id","user_id","outfit_description","weather_condition","date_generated") VALUES (42,1,'Top: black shirt | Bottom: jeanswideleg | Footwear: vans shoes | Accessory: black cap','Mild - 23.8°C in Hawaii','2026-06-17 11:50:44');
+INSERT INTO "outfit_history" ("id","user_id","outfit_description","weather_condition","date_generated") VALUES (43,1,'Top: black shirt | Bottom: jeanswideleg | Footwear: Adiddas sambas | Accessory: silver bow chain','Warm - 28.2°C in Kilifi','2026-06-17 11:51:01');
+INSERT INTO "outfit_history" ("id","user_id","outfit_description","weather_condition","date_generated") VALUES (44,1,'Top: black shirt | Bottom: jeanswideleg | Footwear: dollshoes | Accessory: brown belt','Warm - 28.2°C in Kilifi','2026-06-17 11:54:04');
+INSERT INTO "outfit_history" ("id","user_id","outfit_description","weather_condition","date_generated") VALUES (45,1,'Top: black shirt | Bottom: jeanswideleg | Footwear: heels | Accessory: earrings','Warm - 28.2°C in Kilifi','2026-06-17 11:54:08');
+INSERT INTO "outfit_history" ("id","user_id","outfit_description","weather_condition","date_generated") VALUES (46,1,'Top: black shirt | Bottom: jeanswideleg | Footwear: heels | Accessory: pink flower pendant necklace','Warm - 28.2°C in Kilifi','2026-06-17 11:54:38');
+INSERT INTO "outfit_history" ("id","user_id","outfit_description","weather_condition","date_generated") VALUES (47,1,'Top: black shirt | Bottom: jeanswideleg | Footwear: brown sandals | Accessory: silver bow chain','Warm - 28.2°C in Kilifi','2026-06-17 11:54:41');
+INSERT INTO "outfit_history" ("id","user_id","outfit_description","weather_condition","date_generated") VALUES (48,1,'Top: black shirt | Bottom: jeanswideleg | Footwear: dollshoes | Accessory: black cap','Warm - 28.2°C in Kilifi','2026-06-17 11:54:44');
+INSERT INTO "outfit_history" ("id","user_id","outfit_description","weather_condition","date_generated") VALUES (49,1,'Top: black shirt | Bottom: jeanswideleg | Footwear: vans shoes | Accessory: gold waist chain','Warm - 28.2°C in Kilifi','2026-06-17 11:54:46');
+INSERT INTO "outfit_history" ("id","user_id","outfit_description","weather_condition","date_generated") VALUES (50,1,'Top: black shirt | Bottom: jeanswideleg | Footwear: nike | Accessory: black cap','Warm - 28.2°C in Kilifi','2026-06-17 11:54:49');
+INSERT INTO "outfit_history" ("id","user_id","outfit_description","weather_condition","date_generated") VALUES (51,1,'Top: black shirt | Bottom: jeanswideleg | Footwear: sport shoes | Accessory: silver hoops','Warm - 28.2°C in Kilifi','2026-06-17 11:54:51');
+INSERT INTO "outfit_history" ("id","user_id","outfit_description","weather_condition","date_generated") VALUES (52,1,'Top: black shirt | Bottom: jeanswideleg | Footwear: brown sandals | Accessory: silver hoops','Warm - 28.2°C in Kilifi','2026-06-17 11:54:54');
+INSERT INTO "users" ("id","username","email","password_hash") VALUES (1,'Sherlyn','sherlynmuthoni52@gmail.com','scrypt:32768:8:1$fn9wiFSkoGRfONL0$3b12a2260e2a5703e9857b4b3d612da3218109b8ffe01110a3295256d4d873ee5c4000481abecf70faf8bad6c3cdf7ddcef285488ab244aff0cafb21a2a31e88');
+INSERT INTO "users" ("id","username","email","password_hash") VALUES (2,'testperson','testperson@gmail.com','scrypt:32768:8:1$BVQdJ9NGov1lnmgd$5379789df283f2ffc44d95d58aab13a96c8e6708ddcc8cd73fcd8890b000d81a831c574cecaf03ad52aeb95a71d5cb2e119dd8ac22dc07875e99a6436f9c562a');
+COMMIT;
