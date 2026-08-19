@@ -45,6 +45,7 @@ CREATE TABLE outfit_calendar (
     id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT NOT NULL,
     outfit_history_id INT NULL,
+    outfit_details JSON NULL,
     date DATE NOT NULL,
     notes TEXT NULL,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,

@@ -8,31 +8,29 @@
 
 require_once 'config/database.php';
 require_once 'includes/auth.php';
-require_login();
 require_once 'includes/header.php';
 
 $user = get_logged_in_user();
 $userId = $user['id'];
 $pageTitle = 'Calendar';
-
-// Get user's outfit history for the assignment modal
-$stmt = $pdo->prepare('SELECT * FROM outfit_history WHERE user_id = :user_id ORDER BY created_at DESC LIMIT 50');
-$stmt->execute(['user_id' => $userId]);
-$outfitHistory = $stmt->fetchAll();
 ?>
 
 <div class="container">
-    <div class="calendar-wrapper">
-        <div class="calendar-header-row">
-            <h1>Outfit Calendar</h1>
-            <div class="calendar-controls">
-                <button type="button" class="calendar-nav-btn" id="prev-month" aria-label="Previous month">&#8249;</button>
-                <h2 class="calendar-month-year" id="calendar-month-year"></h2>
-                <button type="button" class="calendar-nav-btn" id="next-month" aria-label="Next month">&#8250;</button>
-            </div>
-        </div>
-        <p class="calendar-subtitle">Tap a day to assign an outfit. Numbers show how many times each piece has been worn.</p>
+    <div class="page-header">
+        <h1>Outfit Calendar</h1>
+        <p>Plan your outfits and track what you wore each day</p>
+    </div>
 
+    <div class="calendar-wrapper">
+        <!-- Calendar Controls -->
+        <div class="calendar-controls">
+            <button type="button" class="btn btn-secondary" id="prev-month">&lt; Prev</button>
+            <h2 class="calendar-month-year" id="calendar-month-year"></h2>
+            <button type="button" class="btn btn-secondary" id="next-month">Next &gt;</button>
+            <button type="button" class="btn btn-primary" id="today-btn">Today</button>
+        </div>
+
+        <!-- Calendar Grid -->
         <div class="card calendar-card">
             <div class="calendar-weekdays">
                 <div class="weekday">Sun</div>
@@ -47,54 +45,47 @@ $outfitHistory = $stmt->fetchAll();
                 <!-- Calendar days will be rendered here by JavaScript -->
             </div>
         </div>
+
+        <!-- Calendar Legend -->
+        <div class="calendar-legend">
+            <div class="legend-item">
+                <div class="legend-dot today-dot"></div>
+                <span>Today</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-dot outfit-dot"></div>
+                <span>Has Outfit</span>
+            </div>
+            <div class="legend-item" style="color: var(--text-light);">
+                <span>Tap any day to pick an outfit</span>
+            </div>
+        </div>
     </div>
 </div>
 
-<!-- Outfit Assignment Modal -->
-<div class="modal-overlay" id="outfit-modal">
-    <div class="modal-content">
-        <div class="modal-header">
-            <h3 id="modal-date-title">Assign Outfit</h3>
-            <button type="button" class="modal-close" id="modal-close">&times;</button>
+<!-- Bottom Sheet Overlay -->
+<div class="bottom-sheet-overlay" id="bottom-sheet-overlay">
+    <div class="bottom-sheet" id="bottom-sheet">
+        <div class="bottom-sheet-header">
+            <h3 id="sheet-date-title">Pick an Outfit</h3>
+            <button type="button" class="sheet-close" id="sheet-close">&times;</button>
         </div>
-        <div class="modal-body">
-            <div id="modal-entry-info">
-                <p class="modal-hint">Select an outfit from your history to assign to this date.</p>
-            </div>
-            
-            <form id="outfit-assign-form">
-                <input type="hidden" id="modal-date">
-                <div class="form-group">
-                    <label for="outfit-select">Choose Outfit</label>
-                    <select id="outfit-select" class="form-control">
-                        <option value="">-- No outfit (just notes) --</option>
-                        <?php foreach ($outfitHistory as $outfit): ?>
-                            <?php
-                            $details = json_decode($outfit['outfit_details'], true);
-                            $desc = 'Outfit';
-                            if ($details && isset($details['description'])) {
-                                $desc = $details['description'];
-                            } elseif ($details && isset($details['items']) && is_array($details['items'])) {
-                                $names = array_column($details['items'], 'name');
-                                $desc = implode(', ', array_slice($names, 0, 3));
-                                if (count($names) > 3) $desc .= '...';
-                            }
-                            ?>
-                            <option value="<?php echo $outfit['id']; ?>">
-                                <?php echo htmlspecialchars(date('M j, Y', strtotime($outfit['created_at']))); ?> - <?php echo htmlspecialchars($desc); ?>
-                            </option>
-                        <?php endforeach; ?>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="outfit-notes">Notes (optional)</label>
-                    <textarea id="outfit-notes" rows="3" placeholder="Add any notes for this day..."></textarea>
-                </div>
-                <div class="modal-actions">
-                    <button type="button" class="btn btn-danger" id="remove-outfit-btn" style="display: none;">Remove Outfit</button>
-                    <button type="submit" class="btn btn-primary" id="save-outfit-btn">Save Assignment</button>
-                </div>
-            </form>
+        
+        <div class="bottom-sheet-tabs">
+            <button type="button" class="sheet-tab active" data-category="all">All</button>
+            <button type="button" class="sheet-tab" data-category="tops">Tops</button>
+            <button type="button" class="sheet-tab" data-category="bottoms">Bottoms</button>
+            <button type="button" class="sheet-tab" data-category="footwear">Footwear</button>
+            <button type="button" class="sheet-tab" data-category="accessories">Accessories</button>
+        </div>
+        
+        <div class="bottom-sheet-items" id="sheet-items">
+            <div class="loading">Loading your wardrobe...</div>
+        </div>
+        
+        <div class="bottom-sheet-footer">
+            <button type="button" class="btn btn-danger" id="sheet-remove-btn" style="display: none;">Remove</button>
+            <button type="button" class="btn btn-primary btn-block" id="sheet-save-btn">Save Outfit</button>
         </div>
     </div>
 </div>

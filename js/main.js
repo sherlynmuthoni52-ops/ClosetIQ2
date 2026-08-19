@@ -112,20 +112,24 @@ document.addEventListener('DOMContentLoaded', function() {
     const prevBtn = document.getElementById('prev-month');
     const nextBtn = document.getElementById('next-month');
     const todayBtn = document.getElementById('today-btn');
-    const modal = document.getElementById('outfit-modal');
-    const modalClose = document.getElementById('modal-close');
-    const modalDateTitle = document.getElementById('modal-date-title');
-    const modalDateInput = document.getElementById('modal-date');
-    const outfitSelect = document.getElementById('outfit-select');
-    const outfitNotes = document.getElementById('outfit-notes');
-    const assignForm = document.getElementById('outfit-assign-form');
-    const removeBtn = document.getElementById('remove-outfit-btn');
+    const bottomSheetOverlay = document.getElementById('bottom-sheet-overlay');
+    const bottomSheet = document.getElementById('bottom-sheet');
+    const sheetClose = document.getElementById('sheet-close');
+    const sheetDateTitle = document.getElementById('sheet-date-title');
+    const sheetItems = document.getElementById('sheet-items');
+    const sheetSaveBtn = document.getElementById('sheet-save-btn');
+    const sheetRemoveBtn = document.getElementById('sheet-remove-btn');
+    const sheetTabs = document.querySelectorAll('.sheet-tab');
     const tooltip = document.getElementById('outfit-tooltip');
     const tooltipContent = document.getElementById('tooltip-content');
     
     let currentYear = new Date().getFullYear();
     let currentMonth = new Date().getMonth() + 1;
     let calendarEntries = [];
+    let selectedItems = [];
+    let currentSheetDate = null;
+    let currentCategory = 'all';
+    let wardrobeItemsByCategory = {};
     
     function renderCalendar(year, month) {
         if (!calendarGrid) return;
@@ -188,27 +192,73 @@ document.addEventListener('DOMContentLoaded', function() {
         
         if (hasOutfit && entry && entry.outfit_details) {
             const items = entry.outfit_details.items || [];
-            const primaryItem = items[0];
-            dayEl.classList.add('has-outfit');
+            const maxVisible = 3;
+            const visibleItems = items.slice(0, maxVisible);
             
-            if (primaryItem && primaryItem.image_path && primaryItem.image_path.length > 0) {
-                const img = document.createElement('img');
-                img.className = 'outfit-thumbnail';
-                img.src = primaryItem.image_path;
-                img.alt = primaryItem.name;
-                img.loading = 'lazy';
-                dayEl.appendChild(img);
-            } else {
-                const placeholder = document.createElement('div');
-                placeholder.className = 'outfit-thumbnail-placeholder';
-                placeholder.textContent = '👕';
-                dayEl.appendChild(placeholder);
+            if (visibleItems.length === 1) {
+                const primaryItem = visibleItems[0];
+                const wrapper = document.createElement('div');
+                wrapper.className = 'outfit-single';
+                
+                if (primaryItem.image_path && primaryItem.image_path.length > 0) {
+                    const img = document.createElement('img');
+                    img.className = 'outfit-single-img';
+                    img.src = primaryItem.image_path;
+                    img.alt = primaryItem.name;
+                    img.loading = 'lazy';
+                    wrapper.appendChild(img);
+                } else {
+                    const placeholder = document.createElement('div');
+                    placeholder.className = 'outfit-placeholder';
+                    placeholder.textContent = '👕';
+                    wrapper.appendChild(placeholder);
+                }
+                
+                if (primaryItem.wear_count > 0) {
+                    const badge = document.createElement('div');
+                    badge.className = 'wear-badge';
+                    badge.textContent = '×' + primaryItem.wear_count;
+                    wrapper.appendChild(badge);
+                }
+                
+                dayEl.appendChild(wrapper);
+            } else if (visibleItems.length >= 2) {
+                const stack = document.createElement('div');
+                stack.className = 'outfit-stack';
+                
+                visibleItems.forEach(function(item) {
+                    if (item.image_path && item.image_path.length > 0) {
+                        const img = document.createElement('img');
+                        img.className = 'outfit-stack-img';
+                        img.src = item.image_path;
+                        img.alt = item.name;
+                        img.loading = 'lazy';
+                        stack.appendChild(img);
+                    } else {
+                        const placeholder = document.createElement('div');
+                        placeholder.className = 'outfit-stack-more';
+                        placeholder.textContent = '👕';
+                        stack.appendChild(placeholder);
+                    }
+                });
+                
+                if (items.length > maxVisible) {
+                    const more = document.createElement('div');
+                    more.className = 'outfit-stack-more';
+                    more.textContent = '+' + (items.length - maxVisible);
+                    stack.appendChild(more);
+                }
+                
+                const maxWear = Math.max.apply(null, items.map(function(i) { return i.wear_count || 0; }));
+                if (maxWear > 0) {
+                    const badge = document.createElement('div');
+                    badge.className = 'outfit-mini-badge';
+                    badge.textContent = '×' + maxWear + ' worn';
+                    dayEl.appendChild(badge);
+                }
+                
+                dayEl.appendChild(stack);
             }
-
-            const countBadge = document.createElement('div');
-            countBadge.className = 'outfit-count-badge';
-            countBadge.textContent = '×' + (items.length || 1);
-            dayEl.appendChild(countBadge);
             
             // Tooltip on hover
             dayEl.addEventListener('mouseenter', function(e) {
@@ -223,17 +273,16 @@ document.addEventListener('DOMContentLoaded', function() {
                 tooltip.classList.remove('active');
             });
         } else if (!isOtherMonth && dateStr) {
-            dayEl.classList.add('empty-day');
-            const addButton = document.createElement('div');
-            addButton.className = 'calendar-add-button';
-            addButton.setAttribute('aria-label', 'Add outfit for ' + dateStr);
-            addButton.textContent = '+';
-            dayEl.appendChild(addButton);
+            const addSlot = document.createElement('div');
+            addSlot.className = 'empty-slot';
+            addSlot.textContent = '+';
+            addSlot.setAttribute('aria-label', 'Add outfit for ' + dateStr);
+            dayEl.appendChild(addSlot);
         }
         
         if (dateStr && !isOtherMonth) {
             dayEl.addEventListener('click', function() {
-                openModal(dateStr, entry);
+                openBottomSheet(dateStr, entry);
             });
         }
         
@@ -260,32 +309,240 @@ document.addEventListener('DOMContentLoaded', function() {
         tooltipEl.style.top = top + 'px';
     }
     
-    function openModal(dateStr, existingEntry) {
-        modalDateInput.value = dateStr;
+    async function openBottomSheet(dateStr, existingEntry) {
+        currentSheetDate = dateStr;
+        selectedItems = [];
+        
         const dateObj = new Date(dateStr + 'T00:00:00');
         const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-        modalDateTitle.textContent = dateObj.toLocaleDateString('en-US', options);
+        sheetDateTitle.textContent = dateObj.toLocaleDateString('en-US', options);
         
-        // Reset form
-        outfitSelect.value = '';
-        outfitNotes.value = '';
-        
-        if (existingEntry) {
-            if (existingEntry.outfit_history_id) {
-                outfitSelect.value = existingEntry.outfit_history_id;
-            }
-            outfitNotes.value = existingEntry.notes || '';
-            removeBtn.style.display = 'inline-block';
+        // Pre-populate if existing entry
+        if (existingEntry && existingEntry.outfit_details && existingEntry.outfit_details.items) {
+            selectedItems = existingEntry.outfit_details.items.map(function(item) { return item.id; });
+            sheetRemoveBtn.style.display = 'inline-block';
         } else {
-            removeBtn.style.display = 'none';
+            sheetRemoveBtn.style.display = 'none';
         }
         
-        modal.classList.add('active');
-        outfitSelect.focus();
+        // Reset tabs
+        currentCategory = 'all';
+        sheetTabs.forEach(function(tab) {
+            tab.classList.toggle('active', tab.getAttribute('data-category') === 'all');
+        });
+        
+        // Show sheet
+        bottomSheetOverlay.classList.add('active');
+        document.body.style.overflow = 'hidden';
+        
+        // Fetch wardrobe items
+        await fetchWardrobeItems('all');
+        
+        // Focus management
+        setTimeout(function() {
+            const firstTab = document.querySelector('.sheet-tab');
+            if (firstTab) firstTab.focus();
+        }, 100);
     }
     
-    function closeModal() {
-        modal.classList.remove('active');
+    function closeBottomSheet() {
+        bottomSheetOverlay.classList.remove('active');
+        document.body.style.overflow = '';
+        currentSheetDate = null;
+        selectedItems = [];
+    }
+    
+    async function fetchWardrobeItems(category) {
+        sheetItems.innerHTML = '<div class="loading">Loading your wardrobe...</div>';
+        
+        try {
+            const response = await fetch('api/calendar.php?action=get_wardrobe_items');
+            const data = await response.json();
+            
+            if (data.success) {
+                wardrobeItemsByCategory = data.items;
+                renderSheetItems(category);
+            } else {
+                sheetItems.innerHTML = '<div class="error">Failed to load wardrobe items.</div>';
+            }
+        } catch (err) {
+            sheetItems.innerHTML = '<div class="error">Failed to load wardrobe items.</div>';
+        }
+    }
+    
+    function renderSheetItems(category) {
+        sheetItems.innerHTML = '';
+        
+        let itemsToRender = [];
+        if (category === 'all') {
+            Object.keys(wardrobeItemsByCategory).forEach(function(cat) {
+                wardrobeItemsByCategory[cat].forEach(function(item) {
+                    itemsToRender.push(item);
+                });
+            });
+        } else if (wardrobeItemsByCategory[category]) {
+            itemsToRender = wardrobeItemsByCategory[category];
+        }
+        
+        if (itemsToRender.length === 0) {
+            sheetItems.innerHTML = '<div class="empty-state">No items in this category.</div>';
+            return;
+        }
+        
+        itemsToRender.forEach(function(item) {
+            const itemEl = document.createElement('div');
+            itemEl.className = 'sheet-item';
+            if (selectedItems.indexOf(item.id) !== -1) {
+                itemEl.classList.add('selected');
+            }
+            itemEl.setAttribute('data-item-id', item.id);
+            
+            // Check indicator
+            const check = document.createElement('div');
+            check.className = 'sheet-item-check';
+            check.textContent = '✓';
+            itemEl.appendChild(check);
+            
+            // Image
+            if (item.image_path && item.image_path.length > 0) {
+                const img = document.createElement('img');
+                img.className = 'sheet-item-image';
+                img.src = item.image_path;
+                img.alt = item.name;
+                img.loading = 'lazy';
+                itemEl.appendChild(img);
+            } else {
+                const placeholder = document.createElement('div');
+                placeholder.className = 'sheet-item-placeholder';
+                placeholder.textContent = getCategoryIcon(item.category);
+                itemEl.appendChild(placeholder);
+            }
+            
+            // Wear count
+            if (item.wear_count > 0) {
+                const wear = document.createElement('div');
+                wear.className = 'sheet-item-wear';
+                wear.textContent = '×' + item.wear_count;
+                itemEl.appendChild(wear);
+            }
+            
+            // Info
+            const info = document.createElement('div');
+            info.className = 'sheet-item-info';
+            
+            const name = document.createElement('div');
+            name.className = 'sheet-item-name';
+            name.textContent = item.name;
+            info.appendChild(name);
+            
+            const meta = document.createElement('div');
+            meta.className = 'sheet-item-meta';
+            meta.textContent = capitalizeFirst(item.category) + ' | ' + item.color;
+            info.appendChild(meta);
+            
+            itemEl.appendChild(info);
+            
+            // Click handler
+            itemEl.addEventListener('click', function() {
+                toggleItemSelection(item.id);
+            });
+            
+            sheetItems.appendChild(itemEl);
+        });
+    }
+    
+    function toggleItemSelection(itemId) {
+        const index = selectedItems.indexOf(itemId);
+        if (index === -1) {
+            selectedItems.push(itemId);
+        } else {
+            selectedItems.splice(index, 1);
+        }
+        
+        // Update UI
+        const itemEl = document.querySelector('.sheet-item[data-item-id="' + itemId + '"]');
+        if (itemEl) {
+            itemEl.classList.toggle('selected', selectedItems.indexOf(itemId) !== -1);
+        }
+    }
+    
+    async function saveOutfit() {
+        if (!currentSheetDate || selectedItems.length === 0) {
+            alert('Please select at least one item.');
+            return;
+        }
+        
+        try {
+            const formData = new FormData();
+            formData.append('action', 'assign_outfit');
+            formData.append('date', currentSheetDate);
+            formData.append('items', JSON.stringify(selectedItems.map(function(id) { return { id: id }; })));
+            formData.append('notes', '');
+            
+            const response = await fetch('api/calendar.php', {
+                method: 'POST',
+                body: formData
+            });
+            const data = await response.json();
+            
+            if (data.success) {
+                await fetchCalendarEntries(currentYear, currentMonth);
+                closeBottomSheet();
+            } else {
+                alert('Error: ' + data.error);
+            }
+        } catch (err) {
+            alert('Failed to save outfit. Please try again.');
+        }
+    }
+    
+    async function removeOutfitFromSheet() {
+        if (!currentSheetDate) return;
+        
+        if (!confirm('Remove the outfit assignment for this date?')) {
+            return;
+        }
+        
+        try {
+            const formData = new FormData();
+            formData.append('action', 'remove_outfit');
+            formData.append('date', currentSheetDate);
+            
+            const response = await fetch('api/calendar.php', {
+                method: 'POST',
+                body: formData
+            });
+            const data = await response.json();
+            
+            if (data.success) {
+                await fetchCalendarEntries(currentYear, currentMonth);
+                closeBottomSheet();
+            } else {
+                alert('Error: ' + data.error);
+            }
+        } catch (err) {
+            alert('Failed to remove outfit. Please try again.');
+        }
+    }
+    
+    function getCategoryIcon(category) {
+        switch (category) {
+            case 'tops': return '👕';
+            case 'bottoms': return '👖';
+            case 'footwear': return '👟';
+            case 'accessories': return '👜';
+            default: return '👔';
+        }
+    }
+    
+    function capitalizeFirst(str) {
+        return str.charAt(0).toUpperCase() + str.slice(1);
+    }
+    
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
     }
     
     async function fetchCalendarEntries(year, month) {
@@ -307,89 +564,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     
-    async function assignOutfit(date, outfitHistoryId, notes) {
-        try {
-            const formData = new FormData();
-            formData.append('action', 'assign_outfit');
-            formData.append('date', date);
-            formData.append('outfit_history_id', outfitHistoryId || '');
-            formData.append('notes', notes);
-            
-            const response = await fetch('api/calendar.php', {
-                method: 'POST',
-                body: formData
-            });
-            const data = await response.json();
-            
-            if (data.success) {
-                if (data.repeat_warning) {
-                    showMessage(data.repeat_warning, 'warning');
-                }
-                await fetchCalendarEntries(currentYear, currentMonth);
-                closeModal();
-            } else {
-                alert('Error: ' + data.error);
-            }
-        } catch (err) {
-            alert('Failed to assign outfit. Please try again.');
-        }
-    }
-    
-    async function removeOutfit(date) {
-        if (!confirm('Remove the outfit assignment for this date?')) {
-            return;
-        }
-        
-        try {
-            const formData = new FormData();
-            formData.append('action', 'remove_outfit');
-            formData.append('date', date);
-            
-            const response = await fetch('api/calendar.php', {
-                method: 'POST',
-                body: formData
-            });
-            const data = await response.json();
-            
-            if (data.success) {
-                await fetchCalendarEntries(currentYear, currentMonth);
-                closeModal();
-            } else {
-                alert('Error: ' + data.error);
-            }
-        } catch (err) {
-            alert('Failed to remove outfit. Please try again.');
-        }
-    }
-    
-    function showMessage(text, type) {
-        // Simple message display - could be enhanced with a toast notification
-        const messageDiv = document.createElement('div');
-        messageDiv.style.cssText = 'position:fixed;top:20px;left:50%;transform:translateX(-50%);padding:1rem 2rem;border-radius:8px;color:white;font-weight:500;z-index:5000;box-shadow:0 4px 12px rgba(0,0,0,0.15);animation:slideDown 0.3s ease;';
-        if (type === 'warning') {
-            messageDiv.style.backgroundColor = '#f39c12';
-        } else {
-            messageDiv.style.backgroundColor = '#27ae60';
-        }
-        messageDiv.textContent = text;
-        document.body.appendChild(messageDiv);
-        
-        setTimeout(function() {
-            messageDiv.style.opacity = '0';
-            messageDiv.style.transition = 'opacity 0.3s ease';
-            setTimeout(function() {
-                document.body.removeChild(messageDiv);
-            }, 300);
-        }, 3000);
-    }
-    
-    function escapeHtml(text) {
-        const div = document.createElement('div');
-        div.textContent = text;
-        return div.innerHTML;
-    }
-    
-    // Event Listeners
+    // Bottom Sheet Event Listeners
     if (calendarGrid) {
         prevBtn.addEventListener('click', function() {
             currentMonth--;
@@ -418,31 +593,49 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         }
         
-        modalClose.addEventListener('click', closeModal);
+        sheetClose.addEventListener('click', closeBottomSheet);
         
-        modal.addEventListener('click', function(e) {
-            if (e.target === modal) {
-                closeModal();
+        bottomSheetOverlay.addEventListener('click', function(e) {
+            if (e.target === bottomSheetOverlay) {
+                closeBottomSheet();
             }
         });
         
-        assignForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            const date = modalDateInput.value;
-            const outfitId = outfitSelect.value;
-            const notes = outfitNotes.value.trim();
-            assignOutfit(date, outfitId, notes);
+        sheetSaveBtn.addEventListener('click', saveOutfit);
+        
+        sheetRemoveBtn.addEventListener('click', removeOutfitFromSheet);
+        
+        sheetTabs.forEach(function(tab) {
+            tab.addEventListener('click', function() {
+                const category = this.getAttribute('data-category');
+                currentCategory = category;
+                
+                sheetTabs.forEach(function(t) {
+                    t.classList.toggle('active', t === tab);
+                });
+                
+                renderSheetItems(category);
+            });
         });
         
-        removeBtn.addEventListener('click', function() {
-            const date = modalDateInput.value;
-            removeOutfit(date);
+        // Swipe down to close
+        let touchStartY = 0;
+        bottomSheet.addEventListener('touchstart', function(e) {
+            touchStartY = e.touches[0].clientY;
         });
         
-        // Close modal with Escape key
+        bottomSheet.addEventListener('touchmove', function(e) {
+            const touchY = e.touches[0].clientY;
+            const diff = touchY - touchStartY;
+            if (diff > 100) {
+                closeBottomSheet();
+            }
+        });
+        
+        // Close with Escape key
         document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape' && modal.classList.contains('active')) {
-                closeModal();
+            if (e.key === 'Escape' && bottomSheetOverlay.classList.contains('active')) {
+                closeBottomSheet();
             }
         });
     }
