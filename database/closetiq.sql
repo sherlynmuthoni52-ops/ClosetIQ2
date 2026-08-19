@@ -36,6 +36,8 @@ CREATE TABLE outfit_history (
     user_id INT NOT NULL,
     outfit_details JSON NOT NULL,
     weather_data JSON,
+    occasion VARCHAR(50) NULL,
+    ai_generated TINYINT(1) DEFAULT 0,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
