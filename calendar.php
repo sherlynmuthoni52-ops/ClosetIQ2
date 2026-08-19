@@ -8,6 +8,7 @@
 
 require_once 'config/database.php';
 require_once 'includes/auth.php';
+require_login();
 require_once 'includes/header.php';
 
 $user = get_logged_in_user();
@@ -21,21 +22,17 @@ $outfitHistory = $stmt->fetchAll();
 ?>
 
 <div class="container">
-    <div class="page-header">
-        <h1>Outfit Calendar</h1>
-        <p>Plan your outfits and track what you wore each day</p>
-    </div>
-
     <div class="calendar-wrapper">
-        <!-- Calendar Controls -->
-        <div class="calendar-controls">
-            <button type="button" class="btn btn-secondary" id="prev-month">&lt; Prev</button>
-            <h2 class="calendar-month-year" id="calendar-month-year"></h2>
-            <button type="button" class="btn btn-secondary" id="next-month">Next &gt;</button>
-            <button type="button" class="btn btn-primary" id="today-btn">Today</button>
+        <div class="calendar-header-row">
+            <h1>Outfit Calendar</h1>
+            <div class="calendar-controls">
+                <button type="button" class="calendar-nav-btn" id="prev-month" aria-label="Previous month">&#8249;</button>
+                <h2 class="calendar-month-year" id="calendar-month-year"></h2>
+                <button type="button" class="calendar-nav-btn" id="next-month" aria-label="Next month">&#8250;</button>
+            </div>
         </div>
+        <p class="calendar-subtitle">Tap a day to assign an outfit. Numbers show how many times each piece has been worn.</p>
 
-        <!-- Calendar Grid -->
         <div class="card calendar-card">
             <div class="calendar-weekdays">
                 <div class="weekday">Sun</div>
@@ -48,21 +45,6 @@ $outfitHistory = $stmt->fetchAll();
             </div>
             <div class="calendar-grid" id="calendar-grid">
                 <!-- Calendar days will be rendered here by JavaScript -->
-            </div>
-        </div>
-
-        <!-- Calendar Legend -->
-        <div class="calendar-legend">
-            <div class="legend-item">
-                <div class="legend-dot today-dot"></div>
-                <span>Today</span>
-            </div>
-            <div class="legend-item">
-                <div class="legend-dot outfit-dot"></div>
-                <span>Has Outfit</span>
-            </div>
-            <div class="legend-item" style="color: var(--text-light);">
-                <span>Click any day to assign an outfit</span>
             </div>
         </div>
     </div>

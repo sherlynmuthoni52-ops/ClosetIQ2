@@ -17,7 +17,7 @@ $user = get_logged_in_user();
     <title>ClosetIQ<?php echo isset($pageTitle) ? ' - ' . htmlspecialchars($pageTitle) : ''; ?></title>
     <link rel="stylesheet" href="css/style.css">
 </head>
-<body>
+<body class="<?php echo $currentPage === 'calendar.php' ? 'calendar-page' : ''; ?>">
     <header class="main-header">
         <div class="container">
             <a href="dashboard.php" class="logo">

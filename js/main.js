@@ -189,6 +189,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (hasOutfit && entry && entry.outfit_details) {
             const items = entry.outfit_details.items || [];
             const primaryItem = items[0];
+            dayEl.classList.add('has-outfit');
             
             if (primaryItem && primaryItem.image_path && primaryItem.image_path.length > 0) {
                 const img = document.createElement('img');
@@ -203,13 +204,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 placeholder.textContent = '👕';
                 dayEl.appendChild(placeholder);
             }
-            
-            if (items.length > 1) {
-                const badge = document.createElement('div');
-                badge.className = 'outfit-mini-badge';
-                badge.textContent = '+' + (items.length - 1) + ' more';
-                dayEl.appendChild(badge);
-            }
+
+            const countBadge = document.createElement('div');
+            countBadge.className = 'outfit-count-badge';
+            countBadge.textContent = '×' + (items.length || 1);
+            dayEl.appendChild(countBadge);
             
             // Tooltip on hover
             dayEl.addEventListener('mouseenter', function(e) {
@@ -223,6 +222,13 @@ document.addEventListener('DOMContentLoaded', function() {
             dayEl.addEventListener('mouseleave', function() {
                 tooltip.classList.remove('active');
             });
+        } else if (!isOtherMonth && dateStr) {
+            dayEl.classList.add('empty-day');
+            const addButton = document.createElement('div');
+            addButton.className = 'calendar-add-button';
+            addButton.setAttribute('aria-label', 'Add outfit for ' + dateStr);
+            addButton.textContent = '+';
+            dayEl.appendChild(addButton);
         }
         
         if (dateStr && !isOtherMonth) {
@@ -403,12 +409,14 @@ document.addEventListener('DOMContentLoaded', function() {
             fetchCalendarEntries(currentYear, currentMonth);
         });
         
-        todayBtn.addEventListener('click', function() {
-            const today = new Date();
-            currentYear = today.getFullYear();
-            currentMonth = today.getMonth() + 1;
-            fetchCalendarEntries(currentYear, currentMonth);
-        });
+        if (todayBtn) {
+            todayBtn.addEventListener('click', function() {
+                const today = new Date();
+                currentYear = today.getFullYear();
+                currentMonth = today.getMonth() + 1;
+                fetchCalendarEntries(currentYear, currentMonth);
+            });
+        }
         
         modalClose.addEventListener('click', closeModal);
         
