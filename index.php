@@ -65,6 +65,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['register'])) {
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body class="auth-page">
+    <div class="hero">
+        <h1>Dress Smarter Every Day</h1>
+        <p>Your wardrobe, intelligently organized outfit suggestions, weather-aware planning, and a complete digital inventory of your closet.</p>
+    </div>
     <div class="auth-container">
         <div class="auth-header">
             <span class="logo-icon">👔</span>

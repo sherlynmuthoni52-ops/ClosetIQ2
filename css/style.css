@@ -312,11 +312,31 @@ a:hover {
 /* Auth Page */
 .auth-page {
     display: flex;
+    flex-direction: column;
     align-items: center;
-    justify-content: center;
     min-height: 100vh;
     background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
-    padding: 2rem;
+}
+
+.hero {
+    width: 100%;
+    text-align: center;
+    padding: 4rem 2rem 2.5rem;
+    color: var(--white);
+}
+
+.hero h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+}
+
+.hero p {
+    font-size: 1.1rem;
+    opacity: 0.9;
+    max-width: 700px;
+    margin: 0 auto;
+    line-height: 1.6;
 }
 
 .auth-container {
@@ -326,6 +346,7 @@ a:hover {
     width: 100%;
     max-width: 800px;
     box-shadow: var(--shadow-hover);
+    margin-bottom: 2rem;
 }
 
 .auth-header {
@@ -845,6 +866,14 @@ a:hover {
 
     .auth-container {
         padding: 1.5rem;
+    }
+
+    .hero h1 {
+        font-size: 1.75rem;
+    }
+
+    .hero p {
+        font-size: 1rem;
     }
 
     .page-header h1 {
